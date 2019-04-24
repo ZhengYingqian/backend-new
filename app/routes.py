@@ -4,7 +4,7 @@ from . import db, Response, request
 import json,sys
 
 from sklearn import manifold,datasets
-from .data.process import queryById, dataCal2, getPRecord
+from .data.process import queryById, dataCal2, getPRecord, recordsKeys
 from .fs.tsne import getResult, getPCA, fs, dimReduction
 
 from sklearn.feature_extraction import DictVectorizer
@@ -39,10 +39,55 @@ def process():
         records.extend(getPRecord(res[item], idx))
     tSNEInput = vec.fit_transform(records).toarray()
     names = vec.get_feature_names()
+    ori_names = recordsKeys(records)
     rdData = dimReduction(tSNEInput, opt)
     features = fs(tSNEInput, features, clusters)
     ans = {
         'tsne': rdData,
+        'ori_names': ori_names,
+        'names': names,
+        'features': features['idx'],
+        'records': records
+    }
+    response = Response(json.dumps(ans), mimetype='application/json')
+    return response
+
+@app.route('/tsne', methods=['POST'])
+def tsne():
+    req = request.json
+    idx = req[u'idx']
+    opt = {'randomState': req[u'randomState'],'perplexity':req[u'perplexity'],'early_exaggeration':req[u'early_exaggeration'], 'n_components':req[u'n_components']}
+
+    res = queryById(idx)
+    records = []
+    for item in res:
+        records.extend(getPRecord(res[item], idx))
+    tSNEInput = vec.fit_transform(records).toarray()
+    names = vec.get_feature_names()
+    rdData = dimReduction(tSNEInput, opt)
+    ans = {
+        'tsne': rdData
+    }
+    response = Response(json.dumps(ans), mimetype='application/json')
+    return response
+
+@app.route('/fs', methods=['POST'])
+def featureSelection():
+    req = request.json
+    idx = req[u'idx']
+    features = req[u'features']
+    clusters = req[u'clusters']
+
+    res = queryById(idx)
+    records = []
+    for item in res:
+        records.extend(getPRecord(res[item], idx))
+    tSNEInput = vec.fit_transform(records).toarray()
+    names = vec.get_feature_names()
+    ori_names = recordsKeys(records)
+    features = fs(tSNEInput, features, clusters)
+    ans = {
+        'ori_names': ori_names,
         'names': names,
         'features': features['idx'],
         'records': records

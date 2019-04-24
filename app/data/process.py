@@ -13,40 +13,54 @@ def queryById(ids):
     for key in bahs:
         home = HOME.query.filter(HOME.part1_bah == key and HOME.part1_HIS == 1).all()
         home = HOME.query.filter(HOME.part1_bah == key and HOME.part1_HIS == 0).all()
-        lis = SECOND_LIS.query.filter(SECOND_LIS.part3_OUTPATIENT_ID == key).all()
+        lisdata = SECOND_LIS.query.filter(SECOND_LIS.part3_OUTPATIENT_ID == key).all()
         if key in pats:
             pats[key]['home'].append(home)
-            pats[key]['lis'].append(lis)
+            pats[key]['lisdata'].append(lisdata)
         else:
             pats[key] = {
                 'home': home,
-                'lis': lis
+                'lisdata': lisdata
                 }
     return pats;
 
 # 将每个病人的home、fee、lis连接为若干条数据
 def getPRecord(data, ids):
     res = []
-    lis = data['lis']
+    lisdata = data['lisdata']
     home = data['home']
     #get rusj-cysj
     for item in home:
         temp = item.to_dict()
         timerange = [time.strptime(getattr(item, 'part1_rysj').split(' ')[0], '%Y/%m/%d'), time.strptime(getattr(item,'part1_cysj').split(' ')[0], '%Y/%m/%d')]
-        for lisItem in lis:
+        for lisItem in lisdata:
+            # TODO：对于lis检查项待处理 getattr(lisItem, 'part3_CHINESE_NAME')+ '_'+ getattr(lisItem, 'part3_TEST_ORDER_NAME')
             t1 = getattr(lisItem, 'part3_INSPECTION_DATE')
             t =time.mktime(time.strptime(t1, '%Y%m%d'))
-            # t2 =  time.strftime('%Y/%m/%d', strTime)
             if t>time.mktime(timerange[0]) and t<time.mktime(timerange[1]):
                 temp[getattr(lisItem, 'part3_CHINESE_NAME')] = getattr(lisItem, 'part3_QUANTITATIVE_RESULT')
+                # if getattr(lisItem, 'part3_TEST_ORDER_NAME'):
+                #     temp[getattr(lisItem, 'part3_CHINESE_NAME')+'_'+getattr(lisItem, 'part3_TEST_ORDER_NAME')] = getattr(lisItem, 'part3_QUANTITATIVE_RESULT')
             else:
                 pass
         if temp['part1_pid'] in ids:
             tt = dropKeyfn(temp, dropKeys)
-            # tt = selectKeyfn(temp, selectKeys)
             res.append(tt)
     return res
-        
+
+# 获取共同的key
+def recordsKeys(data):
+    collectKeys=[]
+    dics = {}
+    for item in data:
+        for key in item.keys():
+            if key in collectKeys:
+                dics[key] = dics[key]+1
+            else:
+                collectKeys.append(key)
+                dics[key] = 1
+    return dics
+                
 # 删去无关维度
 def dropKeyfn(dic, keys):
     newDic = {}
@@ -71,7 +85,25 @@ def selectKeyfn(dic, keys):
         else:
             pass
     return newDic
-
+# 获取全部的维度
+def collectAllKeysfn(dic, keys):
+    newKeys = []
+    for key in dic:
+        if key in keys:
+            pass
+        else:
+            newKeys.append(key)
+    return newKeys
+# 提取共有维度guan
+def commonKeysfn(dic, keys):
+    newKeys = []
+    for key in dic:
+        if key in keys:
+            newKeys.append(key)
+        else:
+            pass
+    return newKeys
+# 判断是否为数字
 def is_number(s):
     try:
         complex(s) # for int, long, float and complex

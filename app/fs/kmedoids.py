@@ -69,9 +69,9 @@ import numpy as np
 import kmedoids
 
 # 3 points in dataset
-data = np.array([[1,1], 
-                [2,2], 
-                [10,10]])
+data = np.array([[1,3,'ls'], 
+                [2,2, 'ls'], 
+                [10,10,'dd']])
 
 # distance matrix
 D = pairwise_distances(data, metric='euclidean')
