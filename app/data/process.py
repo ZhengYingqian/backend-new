@@ -4,7 +4,7 @@ import time
 from ..database import SECOND_FEE, SECOND_HOME, SECOND_LIS,HOME, FEE
 from .data import home_info2, lis, shortLis
 from .bi import searchKey
-from .transKeys import dropKeys, selectKeys
+from .transKeys import dropKeys, selectKeys1, selectKeys2
 
 # 根据id数组查询病案号
 def queryById(ids):
@@ -29,23 +29,33 @@ def getPRecord(data, ids):
     res = []
     lisdata = data['lisdata']
     home = data['home']
+    selectKeys = []
+    selectKeys = concatKeys(selectKeys1, selectKeys2)
     #get rusj-cysj
     for item in home:
         temp = item.to_dict()
-        timerange = [time.strptime(getattr(item, 'part1_rysj').split(' ')[0], '%Y/%m/%d'), time.strptime(getattr(item,'part1_cysj').split(' ')[0], '%Y/%m/%d')]
-        for lisItem in lisdata:
-            # TODO：对于lis检查项待处理 getattr(lisItem, 'part3_CHINESE_NAME')+ '_'+ getattr(lisItem, 'part3_TEST_ORDER_NAME')
-            t1 = getattr(lisItem, 'part3_INSPECTION_DATE')
-            t =time.mktime(time.strptime(t1, '%Y%m%d'))
-            if t>time.mktime(timerange[0]) and t<time.mktime(timerange[1]):
-                temp[getattr(lisItem, 'part3_CHINESE_NAME')] = getattr(lisItem, 'part3_QUANTITATIVE_RESULT')
-                # if getattr(lisItem, 'part3_TEST_ORDER_NAME'):
-                #     temp[getattr(lisItem, 'part3_CHINESE_NAME')+'_'+getattr(lisItem, 'part3_TEST_ORDER_NAME')] = getattr(lisItem, 'part3_QUANTITATIVE_RESULT')
-            else:
-                pass
-        if temp['part1_pid'] in ids:
-            tt = dropKeyfn(temp, dropKeys)
-            res.append(tt)
+        # print(getattr(item, 'part1_rysj'), getattr(item, 'part1_cysj'))
+        if '/' in getattr(item, 'part1_rysj') and '/' in getattr(item, 'part1_cysj'):
+            timerange = [time.strptime(getattr(item, 'part1_rysj').split(' ')[0], '%Y/%m/%d'), time.strptime(getattr(item,'part1_cysj').split(' ')[0], '%Y/%m/%d')]
+            for lisItem in lisdata:
+                # TODO：对于lis检查项待处理 getattr(lisItem, 'part3_CHINESE_NAME')+ '_'+ getattr(lisItem, 'part3_TEST_ORDER_NAME')
+                t1 = getattr(lisItem, 'part3_INSPECTION_DATE')
+                t =time.mktime(time.strptime(t1, '%Y%m%d'))
+                name = getattr(lisItem, 'part3_TEST_ORDER_NAME') 
+                # val = getattr(lisItem, 'part3_QUANTITATIVE_RESULT')
+                if t>time.mktime(timerange[0]) and t<time.mktime(timerange[1]) and getattr(lisItem, 'part3_QUANTITATIVE_RESULT') != None and '---' not in getattr(lisItem, 'part3_QUANTITATIVE_RESULT') :
+                    temp[getattr(lisItem, 'part3_CHINESE_NAME')] = getattr(lisItem, 'part3_QUANTITATIVE_RESULT')
+                    # if getattr(lisItem, 'part3_TEST_ORDER_NAME'):
+                    #     temp[getattr(lisItem, 'part3_CHINESE_NAME')+'_'+getattr(lisItem, 'part3_TEST_ORDER_NAME')] = getattr(lisItem, 'part3_QUANTITATIVE_RESULT')
+                else:
+                    pass
+                
+            if temp['part1_pid'] in ids:
+                # tt = dropKeyfn(temp, dropKeys)
+                # tt = selectxcgKeyfn(temp, selectKeys)
+                tt = appendReocrds(temp, selectKeys)
+                # if len(tt) == len(selectKeys):
+                res.append(tt)
     return res
 
 # 获取共同的key
@@ -85,6 +95,36 @@ def selectKeyfn(dic, keys):
         else:
             pass
     return newDic
+# 为空值补零
+def appendReocrds(dic, keys):
+    newDic = {}
+    for key in keys:
+        if key in dic:
+            if is_number(dic[key]):
+                newDic[key] = float(dic[key])
+            else:
+                newDic[key] = dic[key]
+        else:
+            newDic[key] = 0
+    return newDic
+
+def selectxcgKeyfn(dic, keys):
+    newDic = {}
+    for key in keys:
+        if key in dic:
+            if is_number(dic[key]):
+                newDic[key] = float(dic[key])
+            else:
+                newDic[key] = dic[key]
+    return newDic
+
+def concatKeys(keys1, keys2):
+    newKeys = keys2
+    for ele in keys1:
+        if ele not in keys2:
+            newKeys.append(ele)
+    return newKeys
+
 # 获取全部的维度
 def collectAllKeysfn(dic, keys):
     newKeys = []

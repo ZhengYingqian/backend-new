@@ -3,6 +3,8 @@ from app import app
 from . import db, Response, request
 import json,sys
 
+import numpy as np
+
 from sklearn import manifold,datasets
 from .data.process import queryById, dataCal2, getPRecord, recordsKeys
 from .fs.tsne import getResult, getPCA, fs, dimReduction

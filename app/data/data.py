@@ -1595,3 +1595,57 @@ lis = {
       '甲胎蛋白(电化学发光法)': 'number'
     }
 }
+
+home = rxaData1 = {
+  '住院病案首页提取信息': {
+    '住院次数': ['zycs', 'number'],
+    '医疗付款方式': ['ylfkfs', 'string'],
+    '年龄': ['nl', 'number'],
+    '性别': ['xb', 'string'],
+    '现住址': ['xzz', 'string'],
+    '出生省份': ['cssf', 'string'],
+    '出生地市': ['csds', 'string'],
+    '职业': ['zy', 'string'],
+    '民族': ['mz', 'string'],
+    # // '联系电话': ['halxdh', 'number'],
+    # // '联系人姓名': ['lxrxm', 'string'],
+    # // '联系人电话': ['lxrdh', 'number'],
+    '入院病室': ['rybs', 'string'],
+    # // '入院时间': ['rysj', 'date'],
+    # // '入院诊断': ['ryzd', 'string'],
+    # // '出院时间': ['cysj', 'date'],
+    '出院诊断1': ['cyzd1', 'string'],
+    '出院诊断2': ['cyzd2', 'string'],
+    '出院诊断3': ['cyzd3', 'string'],
+    '实际住院天数': ['sjzyts', 'number'],
+    '病理号': ['blh', 'number'],
+    '病理诊断': ['blzd', 'string'],
+    # '手术日期': ['ssrq', 'date'],
+    '手术名称': ['ssmc', 'string'],
+    '麻醉方式': ['mzfs', 'string']
+  },
+  '治疗费用': {
+    '病案号': ['bah', 'number'],
+    '住院总费用': ['zyzfy', 'number'],
+    '一般医疗服务费': ['ybylfwf', 'number'],
+    '一般治疗操作费': ['ybzlczf', 'number'],
+    '护理费': ['hlf', 'number'],
+    '综合医疗服务类其他费用': ['zhylfwlqtfy', 'number'],
+    '病理诊断费': ['blzdf', 'number'],
+    '实验室诊断费': ['syszdf', 'number'],
+    '影像学诊断费': ['yxxzdf', 'number'],
+    '临床诊断项目费': ['lczdxmf', 'number'],
+    '非手术治疗项目费': ['fsszlxmf', 'number'],
+    '手术治疗费': ['sszlf', 'number'],
+    '麻醉费': ['mzf', 'number'],
+    '手术费': ['ssf', 'number'],
+    '康复费': ['kff', 'number'],
+    '中医治疗费': ['zyzlf', 'number'],
+    '西药费': ['xyf', 'number'],
+    '抗菌药物费用': ['kjywfy', 'number'],
+    '中成药费': ['zcyf', 'number'],
+    '检查用一次性医用材料费': ['jcyycxyyclf', 'number'],
+    '治疗用一次性医用材料费': ['zlyycxyyclf', 'number'],
+    '手术用一次性医用材料费': ['ssyycxyyclf', 'number'],
+  }
+};
